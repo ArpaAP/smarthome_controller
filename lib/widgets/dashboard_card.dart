@@ -5,10 +5,10 @@ class DashboardCard extends StatelessWidget {
   final Widget child;
 
   const DashboardCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class DashboardCard extends StatelessWidget {
           BoxShadow(
             blurRadius: 10,
             offset: const Offset(0, 8),
-            color: Colors.grey.withOpacity(.2),
+            color: Colors.grey.withValues(alpha: .2),
             spreadRadius: -2,
           )
         ],

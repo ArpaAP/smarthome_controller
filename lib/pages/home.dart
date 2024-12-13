@@ -105,9 +105,9 @@ class _HomePageState extends State<HomePage>
                           blurRadius: 10,
                           offset: const Offset(0, 8),
                           color: switch (windowOpen) {
-                            true => Colors.teal.withOpacity(.4),
-                            false => Colors.pink.withOpacity(.4),
-                            null => Colors.grey.withOpacity(.4)
+                            true => Colors.teal.withValues(alpha: .4),
+                            false => Colors.pink.withValues(alpha: .4),
+                            null => Colors.grey.withValues(alpha: .4)
                           },
                           spreadRadius: -2,
                         )
@@ -155,7 +155,7 @@ class _HomePageState extends State<HomePage>
                         BoxShadow(
                           blurRadius: 10,
                           offset: const Offset(0, 8),
-                          color: Colors.deepPurpleAccent.withOpacity(.4),
+                          color: Colors.deepPurpleAccent.withValues(alpha: .4),
                           spreadRadius: -2,
                         )
                       ],
