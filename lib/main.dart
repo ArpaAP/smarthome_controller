@@ -1,20 +1,20 @@
+import 'package:firebase_core/firebase_core.dart';
+// import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter/material.dart';
 import 'package:smarthome_controller/pages/connection.dart';
 import 'package:smarthome_controller/pages/home.dart';
 import 'package:smarthome_controller/pages/preferences.dart';
-// import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:flutter/material.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'firebase_options.dart';
 
+import 'firebase_options.dart';
 import 'modules/socketio.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // await Firebase.initializeApp(
-  //   options: DefaultFirebaseOptions.currentPlatform,
-  // );
-  //
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   // final remoteConfig = FirebaseRemoteConfig.instance;
   // await remoteConfig.setConfigSettings(RemoteConfigSettings(
   //   fetchTimeout: const Duration(minutes: 1),
@@ -40,9 +40,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         brightness: Brightness.light,
         visualDensity: VisualDensity.adaptivePlatformDensity,
-        primaryColor: Colors.blueGrey,
-        primarySwatch: Colors.blueGrey,
-        scaffoldBackgroundColor: const Color.fromRGBO(235, 237, 240, 1),
+        primaryColor: Colors.deepPurple,
+        primarySwatch: Colors.deepPurple,
+        scaffoldBackgroundColor: const Color.fromRGBO(235, 232, 241, 1.0),
         appBarTheme: const AppBarTheme(backgroundColor: Colors.white),
         iconTheme: const IconThemeData(
           color: Colors.black, //change your color here
@@ -104,6 +104,7 @@ class _RootPageState extends State<RootPage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        enableFeedback: true,
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(

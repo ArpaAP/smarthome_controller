@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart';
-import 'package:socket_io_common/src/util/event_emitter.dart';
 
 import '../modules/socketio.dart';
 import '../widgets/dashboard_card.dart';
@@ -17,7 +16,13 @@ class _HomePageState extends State<HomePage>
   num? temperature;
   num? humidity;
   num? waterLevel;
+  num? dust;
+
+  bool? securityMode;
   bool? windowOpen;
+  bool? fanOn;
+  bool? lightOn;
+
   bool isProcessingOpenClosed = false;
 
   void onSensorMeasurementsUpdated(dynamic data) {
@@ -25,16 +30,21 @@ class _HomePageState extends State<HomePage>
       temperature = data['temperature'];
       humidity = data['humidity'];
       waterLevel = data['waterLevel'];
+      dust = data['dust'];
     });
   }
 
-  void onActuatorStateUpdated(dynamic data) {
+  void onActionUpdated(dynamic data) {
+    print(data);
     setState(() {
-      windowOpen = data['set'];
+      securityMode = data['securityMode'] ?? securityMode;
+      windowOpen = data['windowOpen'] ?? windowOpen;
+      fanOn = data['fanOn'] ?? fanOn;
+      lightOn = data['lightOn'] ?? lightOn;
     });
   }
 
-  void forceRebuild(dynamic data) {
+  void forceRebuild() {
     setState(() {});
   }
 
@@ -47,16 +57,28 @@ class _HomePageState extends State<HomePage>
       onSensorMeasurementsUpdated,
     );
     SocketApi.socket.on(
-      'actuatorStateUpdated',
-      onActuatorStateUpdated,
+      'actionUpdated',
+      onActionUpdated,
     );
-    SocketApi.socket.onConnect(forceRebuild);
-    SocketApi.socket.onReconnect(forceRebuild);
-    SocketApi.socket.onError(forceRebuild);
+    SocketApi.socket.onConnect((_) => forceRebuild());
+    SocketApi.socket.onReconnect((_) => forceRebuild());
+    SocketApi.socket.onError((_) => forceRebuild());
 
-    SocketApi.socket.emitWithAck('getActuatorState', null, ack: (data) {
+    SocketApi.socket.emitWithAck('getSensorMeasurements', null, ack: (data) {
       setState(() {
-        windowOpen = data['data']['set'];
+        temperature = data['temperature'];
+        humidity = data['humidity'];
+        waterLevel = data['waterLevel'];
+        dust = data['dust'];
+      });
+    });
+
+    SocketApi.socket.emitWithAck('getAction', null, ack: (data) {
+      setState(() {
+        securityMode = data['securityMode'];
+        windowOpen = data['windowOpen'];
+        fanOn = data['fanOn'];
+        lightOn = data['lightOn'];
       });
     });
   }
@@ -70,15 +92,45 @@ class _HomePageState extends State<HomePage>
       onSensorMeasurementsUpdated,
     );
     SocketApi.socket.off(
-      'actuatorStateUpdated',
-      onActuatorStateUpdated,
+      'actionUpdated',
+      onActionUpdated,
     );
-    SocketApi.socket.offAny(forceRebuild as AnyEventHandler?);
+    SocketApi.socket.offAny((event, data) {
+      forceRebuild();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    final baseButtonStyle = ElevatedButton.styleFrom(
+      iconSize: 30,
+      elevation: 5,
+      shadowColor: Colors.grey.withValues(alpha: .2),
+      textStyle: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+      padding: EdgeInsets.all(16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(25),
+      ),
+    );
+
+    final activeButtonStyle = baseButtonStyle.merge(
+      ElevatedButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Colors.white,
+        iconColor: Colors.white,
+      ),
+    );
+
+    final inactiveButtonStyle = baseButtonStyle.merge(
+      ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        foregroundColor: Theme.of(context).colorScheme.primary,
+        iconColor: Theme.of(context).colorScheme.primary,
+      ),
+    );
+
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(
         parent: AlwaysScrollableScrollPhysics(),
@@ -96,28 +148,75 @@ class _HomePageState extends State<HomePage>
                 childAspectRatio: 1,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
-                children: [Icons.window, Icons.air, Icons.warning, Icons.camera]
-                    .map((icon) {
-                  return ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      iconSize: 32,
-                      foregroundColor: Colors.grey,
-                      backgroundColor: Colors.white,
-                      elevation: 2,
-                      shadowColor: Colors.grey.withValues(alpha: .2),
-                      textStyle: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 20.0,
-                      ),
-                      padding: EdgeInsets.all(16.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
-                      ),
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      SocketApi.socket.emitWithAck(
+                        'updateAction',
+                        {
+                          'securityMode': !(securityMode ?? false),
+                        },
+                      );
+                    },
+                    style: securityMode == true
+                        ? activeButtonStyle
+                        : inactiveButtonStyle,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Icon(Icons.shield), Text("경비모드")],
                     ),
-                    child: Icon(icon),
-                  );
-                }).toList()),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      SocketApi.socket.emitWithAck(
+                        'updateAction',
+                        {
+                          'windowOpen': !(windowOpen ?? false),
+                        },
+                      );
+                    },
+                    style: windowOpen == true
+                        ? activeButtonStyle
+                        : inactiveButtonStyle,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Icon(Icons.window), Text("창문")],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      SocketApi.socket.emitWithAck(
+                        'updateAction',
+                        {
+                          'fanOn': !(fanOn ?? false),
+                        },
+                      );
+                    },
+                    style:
+                        fanOn == true ? activeButtonStyle : inactiveButtonStyle,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Icon(Icons.air), Text("선풍기")],
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      SocketApi.socket.emitWithAck(
+                        'updateAction',
+                        {
+                          'lightOn': !(lightOn ?? false),
+                        },
+                      );
+                    },
+                    style: lightOn == true
+                        ? activeButtonStyle
+                        : inactiveButtonStyle,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Icon(Icons.lightbulb), Text("전등")],
+                    ),
+                  )
+                ].toList()),
             const SizedBox(height: 16),
             DashboardCard(
               title: '센서 정보',
@@ -222,9 +321,9 @@ class _HomePageState extends State<HomePage>
                           ),
                           const Expanded(child: SizedBox()),
                           Text(
-                            waterLevel != null ? waterLevel.toString() : '-',
+                            '비 내리지 않음',
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -246,25 +345,25 @@ class _HomePageState extends State<HomePage>
                         side: const BorderSide(color: Colors.white, width: 1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      title: const Row(
+                      title: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             '미세먼지',
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          Expanded(child: SizedBox()),
+                          const Expanded(child: SizedBox()),
                           Text(
-                            '-',
-                            style: TextStyle(
+                            dust != null ? dust.toString() : '-',
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          Text(
+                          const Text(
                             ' ppm',
                             style: TextStyle(fontSize: 12),
                           )
