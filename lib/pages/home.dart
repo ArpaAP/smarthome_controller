@@ -383,7 +383,7 @@ class _HomePageState extends State<HomePage>
             ),
             const SizedBox(height: 16),
             DashboardCard(
-              title: '시스템 커넥션 상태',
+              title: '시스템 연결 상태',
               child: Column(
                 children: [
                   Card(
@@ -396,7 +396,7 @@ class _HomePageState extends State<HomePage>
                       title: Row(
                         children: [
                           const Text(
-                            '센싱 하드웨어 연결',
+                            '아두이노 및 센싱 하드웨어',
                             style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
@@ -417,7 +417,9 @@ class _HomePageState extends State<HomePage>
                       ),
                       tileColor: const Color.fromRGBO(242, 244, 245, 1),
                       onTap: () {},
-                      leading: const Icon(Icons.wifi),
+                      leading: Icon(SocketApi.socket.connected
+                          ? Icons.wifi
+                          : Icons.wifi_off),
                       contentPadding:
                           const EdgeInsets.symmetric(horizontal: 12),
                       horizontalTitleGap: 8,

@@ -38,8 +38,19 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
-        brightness: Brightness.light,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          type: BottomNavigationBarType.fixed,
+          enableFeedback: true,
+          unselectedLabelStyle: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+          selectedLabelStyle: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
         primaryColor: Colors.deepPurple,
         primarySwatch: Colors.deepPurple,
         scaffoldBackgroundColor: const Color.fromRGBO(235, 232, 241, 1.0),
@@ -66,6 +77,7 @@ class _RootPageState extends State<RootPage> {
 
   static final List<Widget> _pages = [
     const HomePage(),
+    const SizedBox(),
     const ConnectionPage(),
     const PreferencesPage(),
   ];
@@ -104,7 +116,6 @@ class _RootPageState extends State<RootPage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        enableFeedback: true,
         currentIndex: _selectedIndex,
         onTap: (index) {
           setState(
@@ -126,8 +137,13 @@ class _RootPageState extends State<RootPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.memory),
-            label: '연결',
-            tooltip: '연결',
+            label: '어시스턴트',
+            tooltip: '어시스턴트',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.wifi),
+            label: '통신',
+            tooltip: '통신',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
@@ -135,17 +151,6 @@ class _RootPageState extends State<RootPage> {
             tooltip: '설정',
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          pageController.animateToPage(
-            0,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeInOutQuart,
-          );
-        },
-        tooltip: 'AI 어시스턴트',
-        child: const Icon(Icons.assistant),
       ),
     );
   }
