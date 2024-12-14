@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "737014628385",
+    "project_id": "knu-smarthome",
+    "storage_bucket": "knu-smarthome.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:737014628385:android:2f1df8b7f5bbcb65332360",
+        "android_client_info": {
+          "package_name": "dev.arpaap.smarthome_controller"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDTwBYE1hseOo4HNBjuzLMDGj6Neb3K-Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
