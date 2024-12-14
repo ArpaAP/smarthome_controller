@@ -89,107 +89,35 @@ class _HomePageState extends State<HomePage>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: AnimatedContainer(
-                    decoration: BoxDecoration(
-                      color: switch (windowOpen) {
-                        true => Colors.teal.shade400,
-                        false => Colors.pink.shade300,
-                        null => Colors.grey
-                      },
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 10,
-                          offset: const Offset(0, 8),
-                          color: switch (windowOpen) {
-                            true => Colors.teal.withValues(alpha: .4),
-                            false => Colors.pink.withValues(alpha: .4),
-                            null => Colors.grey.withValues(alpha: .4)
-                          },
-                          spreadRadius: -2,
-                        )
-                      ],
-                    ),
-                    duration: const Duration(milliseconds: 300),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 14, horizontal: 16),
-                      child: Row(
-                        children: [
-                          const Text(
-                            '개폐 상태: ',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w300,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            switch (windowOpen) {
-                              true => '열림',
-                              false => '닫힘',
-                              null => '불러오는 중'
-                            },
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+            GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 4,
+                childAspectRatio: 1,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                children: [Icons.window, Icons.air, Icons.warning, Icons.camera]
+                    .map((icon) {
+                  return ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
+                      iconSize: 32,
+                      foregroundColor: Colors.grey,
+                      backgroundColor: Colors.white,
+                      elevation: 2,
+                      shadowColor: Colors.grey.withValues(alpha: .2),
+                      textStyle: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 20.0,
+                      ),
+                      padding: EdgeInsets.all(16.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25),
                       ),
                     ),
-                  ),
-                ),
-                Visibility(
-                  visible: windowOpen != null,
-                  child: Container(
-                    margin: const EdgeInsets.only(left: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.deepPurpleAccent.shade200,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          blurRadius: 10,
-                          offset: const Offset(0, 8),
-                          color: Colors.deepPurpleAccent.withValues(alpha: .4),
-                          spreadRadius: -2,
-                        )
-                      ],
-                    ),
-                    child: TextButton(
-                      onPressed: () {
-                        if (windowOpen == null) return;
-
-                        SocketApi.socket
-                            .emit('updateActuatorState', {'set': !windowOpen!});
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        minimumSize: Size.zero,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 16,
-                          horizontal: 20,
-                        ),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      child: Text(switch (windowOpen) {
-                        true => '닫기',
-                        false => '열기',
-                        null => '-'
-                      }),
-                    ),
-                  ),
-                )
-              ],
-            ),
+                    child: Icon(icon),
+                  );
+                }).toList()),
             const SizedBox(height: 16),
             DashboardCard(
               title: '센서 정보',
@@ -370,44 +298,6 @@ class _HomePageState extends State<HomePage>
                         children: [
                           const Text(
                             '센싱 하드웨어 연결',
-                            style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: -0.5),
-                          ),
-                          const Expanded(child: SizedBox()),
-                          Text(
-                            SocketApi.socket.connected ? '정상' : '연결 끊김',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: SocketApi.socket.connected
-                                  ? Colors.deepPurple
-                                  : Colors.pink,
-                            ),
-                          ),
-                        ],
-                      ),
-                      tileColor: const Color.fromRGBO(242, 244, 245, 1),
-                      onTap: () {},
-                      leading: const Icon(Icons.wifi),
-                      contentPadding:
-                          const EdgeInsets.symmetric(horizontal: 12),
-                      horizontalTitleGap: 8,
-                      dense: true,
-                    ),
-                  ),
-                  Card(
-                    elevation: 0,
-                    child: ListTile(
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(color: Colors.white, width: 1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      title: Row(
-                        children: [
-                          const Text(
-                            '액션 하드웨어 연결',
                             style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
