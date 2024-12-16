@@ -321,7 +321,11 @@ class _HomePageState extends State<HomePage>
                           ),
                           const Expanded(child: SizedBox()),
                           Text(
-                            '비 내리지 않음',
+                            waterLevel != null
+                                ? waterLevel! > 900
+                                    ? '비 내림'
+                                    : '비 내리지 않음'
+                                : '-',
                             style: const TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
