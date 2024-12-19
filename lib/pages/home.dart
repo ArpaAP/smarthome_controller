@@ -17,6 +17,7 @@ class _HomePageState extends State<HomePage>
   num? humidity;
   num? waterLevel;
   num? dust;
+  bool? pir;
 
   bool? securityMode;
   bool? windowOpen;
@@ -31,7 +32,26 @@ class _HomePageState extends State<HomePage>
       humidity = data['humidity'];
       waterLevel = data['waterLevel'];
       dust = data['dust'];
+      pir = data['pir'];
     });
+
+    if (humidity != null && humidity! > 50 && fanOn == false) {
+      SocketApi.socket.emitWithAck(
+        'updateAction',
+        {
+          'fanOn': true,
+        },
+      );
+    }
+
+    if (waterLevel != null && waterLevel! > 900 && windowOpen == false) {
+      SocketApi.socket.emitWithAck(
+        'updateAction',
+        {
+          'windowOpen': true,
+        },
+      );
+    }
   }
 
   void onActionUpdated(dynamic data) {
@@ -70,6 +90,7 @@ class _HomePageState extends State<HomePage>
         humidity = data['humidity'];
         waterLevel = data['waterLevel'];
         dust = data['dust'];
+        pir = data['pir'];
       });
     });
 
@@ -142,82 +163,142 @@ class _HomePageState extends State<HomePage>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 4,
-                childAspectRatio: 1,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      SocketApi.socket.emitWithAck(
-                        'updateAction',
-                        {
-                          'securityMode': !(securityMode ?? false),
-                        },
-                      );
-                    },
-                    style: securityMode == true
-                        ? activeButtonStyle
-                        : inactiveButtonStyle,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Icon(Icons.shield), Text("경비모드")],
-                    ),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 4,
+              childAspectRatio: 1,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    SocketApi.socket.emitWithAck(
+                      'updateAction',
+                      {
+                        'securityMode': !(securityMode ?? false),
+                      },
+                    );
+                  },
+                  style: securityMode == true
+                      ? activeButtonStyle
+                      : inactiveButtonStyle,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [Icon(Icons.shield), Text("경비모드")],
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      SocketApi.socket.emitWithAck(
-                        'updateAction',
-                        {
-                          'windowOpen': !(windowOpen ?? false),
-                        },
-                      );
-                    },
-                    style: windowOpen == true
-                        ? activeButtonStyle
-                        : inactiveButtonStyle,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Icon(Icons.window), Text("창문")],
-                    ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    SocketApi.socket.emitWithAck(
+                      'updateAction',
+                      {
+                        'windowOpen': !(windowOpen ?? false),
+                      },
+                    );
+                  },
+                  style: windowOpen == true
+                      ? activeButtonStyle
+                      : inactiveButtonStyle,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [Icon(Icons.window), Text("창문")],
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      SocketApi.socket.emitWithAck(
-                        'updateAction',
-                        {
-                          'fanOn': !(fanOn ?? false),
-                        },
-                      );
-                    },
-                    style:
-                        fanOn == true ? activeButtonStyle : inactiveButtonStyle,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Icon(Icons.air), Text("선풍기")],
-                    ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    SocketApi.socket.emitWithAck(
+                      'updateAction',
+                      {
+                        'fanOn': !(fanOn ?? false),
+                      },
+                    );
+                  },
+                  style:
+                      fanOn == true ? activeButtonStyle : inactiveButtonStyle,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [Icon(Icons.air), Text("선풍기")],
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      SocketApi.socket.emitWithAck(
-                        'updateAction',
-                        {
-                          'lightOn': !(lightOn ?? false),
-                        },
-                      );
-                    },
-                    style: lightOn == true
-                        ? activeButtonStyle
-                        : inactiveButtonStyle,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [Icon(Icons.lightbulb), Text("전등")],
-                    ),
-                  )
-                ].toList()),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    SocketApi.socket.emitWithAck(
+                      'updateAction',
+                      {
+                        'lightOn': !(lightOn ?? false),
+                      },
+                    );
+                  },
+                  style:
+                      lightOn == true ? activeButtonStyle : inactiveButtonStyle,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [Icon(Icons.lightbulb), Text("전등")],
+                  ),
+                )
+              ].toList(),
+            ),
             const SizedBox(height: 16),
+            ...(securityMode == true
+                ? [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            pir == true ? Colors.pink.shade400 : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                            color: pir == true
+                                ? Colors.pink.withValues(alpha: .2)
+                                : Colors.grey.withValues(alpha: .2),
+                            spreadRadius: -2,
+                          )
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.warning,
+                            color: pir == true ? Colors.white : Colors.pink,
+                          ),
+                          const SizedBox(width: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '경비모드 활성화 중',
+                                style: TextStyle(
+                                  color:
+                                      pir == true ? Colors.white : Colors.pink,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              pir == true
+                                  ? Text(
+                                      '감지된 움직임이 있습니다.',
+                                      style: TextStyle(
+                                        color: pir == true
+                                            ? Colors.white
+                                            : Colors.pink,
+                                        fontSize: 14,
+                                      ),
+                                    )
+                                  : Container(),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ]
+                : []),
             DashboardCard(
               title: '센서 정보',
               child: Column(

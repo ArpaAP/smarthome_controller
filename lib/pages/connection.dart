@@ -44,7 +44,6 @@ class _ConnectionPageState extends State<ConnectionPage>
           child: ListView.builder(
             itemCount: messages.length,
             itemBuilder: (context, index) => ListTile(
-              dense: true,
               title: Text(messages[index].$1),
               subtitle: Text(messages[index].$2.toString()),
             ),

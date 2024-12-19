@@ -150,7 +150,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
             ),
             Expanded(
               child: TextFormField(
-                initialValue: '60',
+                initialValue: '50',
                 keyboardType: TextInputType.number,
                 style: const TextStyle(
                   fontWeight: FontWeight.w500,
@@ -176,7 +176,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
               ),
             ),
             const SizedBox(width: 8),
-            const Text('이상일 때 자동으로 창문 닫기'),
+            const Text('이상일 때 자동으로 선풍기 켜기'),
           ],
         ),
         const Divider(height: 0, thickness: 0.5),
@@ -185,7 +185,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
             borderRadius: BorderRadius.circular(8),
           ),
           title: const Text(
-            '습도가 적당할 때 자동으로 창문 열기',
+            '습도가 적당할 때 자동으로 선풍기 끄기',
             style: TextStyle(fontSize: 14),
           ),
           dense: true,
